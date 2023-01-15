@@ -4,7 +4,6 @@ from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 import sys
 import os
-#import socket
 import datetime
 from tkinter import filedialog
 from pygame import mixer, error
@@ -46,9 +45,6 @@ class MusicPlayer(QMainWindow):
         self.s = None
         self.checker = None
         self.status_media = "stoped"  # "playing" , "stoped" , 'paused'
-        # self.sock = socket.socket()
-        # self.host = socket.gethostname()
-        # self.port = 12345
         self.create_menu_bar()
         self.create_main()
         self.create_button()
@@ -527,12 +523,6 @@ class MusicPlayer(QMainWindow):
             sys.exit()
         else:
             open(self.lock_file, 'w').close()
-
-        # try:
-        #     self.sock.bind((self.host, self.port))
-        # except:
-        #     sys.exit()
-
 
 app = QApplication(sys.argv)
 window = MusicPlayer()
