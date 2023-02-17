@@ -1,3 +1,4 @@
+import json
 from time import time
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
@@ -52,7 +53,26 @@ class MusicPlayer(QMainWindow):
         self.processArgument()
         self.pathChecker()
         self.bindSocket()
+        self.load_settings()
+        self.apply_settings()
+  
+    def load_settings(self):
+        with open('settings.json', 'r') as f:
+            self.settings = json.load(f)
 
+    def apply_settings(self):
+        if self.settings['mute'] == True:
+            self.volume_slider.setValue(int(self.settings['volume']*100))
+            self.mute()
+        else:
+            self.volume_slider.setValue(int(self.settings['volume']*100))
+        if self.settings['darkmode'] == True:
+            self.dark_mode()
+        if self.settings['repeat'] == True:
+            self.repeat()
+
+
+        
     def create_shortcut(self):
         self.toggleplaypause_shortcut = QShortcut(
             QKeySequence(Qt.Key.Key_MediaTogglePlayPause), self)
@@ -368,6 +388,10 @@ class MusicPlayer(QMainWindow):
             self.repeat_menu.setIcon(QIcon('icons/icon_repeat.png'))
             self.darkmode.setText("Dark Mode")
             self.dark_mode_enabled = False
+        
+        self.settings['darkmode'] = self.dark_mode_enabled
+        with open('settings.json', 'w') as f:
+            json.dump(self.settings, f)
 
     def mute(self):
         if mixer.music.get_volume() != 0.0:
@@ -380,6 +404,9 @@ class MusicPlayer(QMainWindow):
                 self.mute_menu.setIcon(QIcon('icons1/icon_mute.png'))
             self.mute_menu.setChecked(True)
             self.mute_menu.setText('Unmute')
+            self.settings['mute'] = True
+            with open('settings.json', 'w') as f:
+                json.dump(self.settings, f)
         elif mixer.music.get_volume() == 0.0:
             mixer.music.set_volume(self.volume_slider.value()/100)
             if self.volume_slider.value()/100 != 0.0:
@@ -391,6 +418,9 @@ class MusicPlayer(QMainWindow):
                     self.mute_menu.setIcon(QIcon('icons1/icon_unmute.png'))
                 self.mute_menu.setChecked(False)
                 self.mute_menu.setText('Mute')
+            self.settings['mute'] = False
+            with open('settings.json', 'w') as f:
+                json.dump(self.settings, f)
 
     def volume_changed(self):
         value = self.volume_slider.value()/100
@@ -416,6 +446,11 @@ class MusicPlayer(QMainWindow):
             self.mute_menu.setChecked(True)
             self.mute_menu.setText('Unmute')
 
+        self.settings['volume'] = value
+        self.settings['mute'] = False
+        with open('settings.json', 'w') as f:
+            json.dump(self.settings, f)
+        
     def playsong(self):
         try:
             self.first_time
@@ -490,6 +525,10 @@ class MusicPlayer(QMainWindow):
             self.repeat_menu.setCheckable(False)
             self.repeat_menu.setChecked(False)
             self.repeat_menu.setText('Repeat On')
+
+        self.settings['repeat'] = self.repeat_menu.isCheckable()
+        with open('settings.json', 'w') as f:
+            json.dump(self.settings, f)
 
     def processArgument(self):
         try:
