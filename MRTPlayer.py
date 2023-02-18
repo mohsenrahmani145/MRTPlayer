@@ -38,7 +38,7 @@ class MusicPlayer(QMainWindow):
         self.setWindowTitle("Music Player")
         self.setMinimumSize(500, 500)
         self.setWindowIcon(QIcon('icon.png'))
-
+        self.scaleCalculation = 0
         self.dark_mode_enabled = False
         self.file_argv = None
         self.p = None
