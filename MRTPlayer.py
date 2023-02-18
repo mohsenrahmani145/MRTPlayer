@@ -36,7 +36,6 @@ class MusicPlayer(QMainWindow):
 
         self.setAcceptDrops(True)
         self.setWindowTitle("Music Player")
-        self.setMaximumSize(500, 500)
         self.setMinimumSize(500, 500)
         self.setWindowIcon(QIcon('icon.png'))
 
@@ -70,9 +69,34 @@ class MusicPlayer(QMainWindow):
             self.dark_mode()
         if self.settings['repeat'] == True:
             self.repeat()
+        self.resize(self.settings['sizewindow'][0],self.settings['sizewindow'][1])
 
-
+    def resizeEvent(self, event):
+        window_size = self.size()
+        self.volume_button.setGeometry(window_size.width()-92, 22, 92, 50)
+        self.volume_slider.setGeometry(window_size.width()-35, 80, 20, 150)
+        self.pause_button.setGeometry(int(window_size.width()/5)*0, window_size.height()-50, int(window_size.width()/5), 50)
+        self.resume_button.setGeometry(int(window_size.width()/5)*1, window_size.height()-50, int(window_size.width()/5), 50)
+        self.play_button.setGeometry(int(window_size.width()/5)*2, window_size.height()-50, int(window_size.width()/5), 50)
+        self.stop_button.setGeometry(int(window_size.width()/5)*3, window_size.height()-50, int(window_size.width()/5), 50)
+        self.import_button.setGeometry(int(window_size.width()/5)*4, window_size.height()-50, int(window_size.width()/5), 50)
+        self.time_elapsed.move(10, window_size.height()-75)
+        self.time_ended.move(window_size.width()-75, window_size.height()-80)
+        self.label_track.setGeometry(0, window_size.height()-114, window_size.width(), 35)
+        self.label_artist.setGeometry(0, window_size.height()-142, window_size.width(), 30)
+        self.timeline_slider.setGeometry(81, window_size.height()-74, window_size.width()-160, 20)
+        self.cover.setGeometry(0, 50, window_size.width(), window_size.height()-200)
+        if window_size.width() <= window_size.height():
+            self.scaleCalculation = window_size.width()-200
+            self.cover.setPixmap(self.pixmap.scaled(self.scaleCalculation,self.scaleCalculation))
+        elif window_size.width() > window_size.height():
+            self.scaleCalculation = window_size.height()-200
+            self.cover.setPixmap(self.pixmap.scaled(self.scaleCalculation,self.scaleCalculation))
         
+        self.settings['sizewindow'] = [window_size.width(),window_size.height()]
+        with open('settings.json', 'w') as f:
+            json.dump(self.settings, f)
+
     def create_shortcut(self):
         self.toggleplaypause_shortcut = QShortcut(
             QKeySequence(Qt.Key.Key_MediaTogglePlayPause), self)
@@ -139,12 +163,11 @@ class MusicPlayer(QMainWindow):
     def create_main(self):
         self.cover = QLabel(self)
 
-        ba = QByteArray()
-        pixmap = QPixmap()
-        pixmap.loadFromData(ba, "PNG")
+        self.pixmap = QPixmap('Untitledcover.png')
 
-        self.cover.setPixmap(QPixmap('Untitledcover.png').scaled(300, 300))
-        self.cover.setGeometry(100, 50, 300, 300)
+        self.cover.setPixmap(self.pixmap.scaled(300, 300))
+        self.cover.setGeometry(0, 50, 500, 300)
+        self.cover.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.label_artist = QLabel("", self)
         self.label_artist.setText("Artist")
@@ -278,11 +301,12 @@ class MusicPlayer(QMainWindow):
             file = ID3(str(path))
             pic = file.get('APIC:').data
             ba = QByteArray(pic)
-            pixmap = QPixmap()
-            pixmap.loadFromData(ba, "JPG")
-            self.cover.setPixmap(QPixmap(pixmap).scaled(300, 300))
+            self.pixmap = QPixmap()
+            self.pixmap.loadFromData(ba, "JPG")            
+            self.cover.setPixmap(self.pixmap.scaled(self.scaleCalculation, self.scaleCalculation))
         except:
-            self.cover.setPixmap(QPixmap('Untitledcover.png').scaled(300, 300))
+            self.pixmap = QPixmap('Untitledcover.png')
+            self.cover.setPixmap(self.pixmap.scaled(self.scaleCalculation, self.scaleCalculation))
 
     def importfileargv(self, argv):
         try:
