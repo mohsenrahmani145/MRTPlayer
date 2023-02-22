@@ -1,5 +1,5 @@
 import json
-from time import time
+from time import perf_counter
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
@@ -29,7 +29,7 @@ class MusicPlayer(QMainWindow):
             err.show()
             sys.exit(err.exec())
 
-        self.first_time = time()
+        self.first_time = perf_counter()
         self.secound_time = 0
         self.pathdir = os.path.expanduser('~')
         os.chdir(f'{self.pathdir}\Documents\MRTPlayer')
@@ -256,7 +256,7 @@ class MusicPlayer(QMainWindow):
     def show_about(self):
         self.message = QMessageBox(self)
         self.message.setWindowTitle('About')
-        self.message.setText("Version: 2.5.1\nDeveloper: Mohsen Rahmani")
+        self.message.setText('Version: 2.5.2\nDeveloper: Mohsen Rahmani\nTelegramID : @ETHUSDC')
         self.message.setIcon(QMessageBox.Icon.Information)
         self.message.setWindowIcon(QIcon('icon.png'))
         self.message.exec()
@@ -362,7 +362,7 @@ class MusicPlayer(QMainWindow):
         self.resume_button.setEnabled(False)
         self.pause_menu.setEnabled(True)
         self.resume_menu.setEnabled(False)
-        self.first_time = (time()*1000) - self.secound_time
+        self.first_time = (perf_counter()*1000) - self.secound_time
         self.timer.start(300)
         self.status_media = "playing"
 
@@ -484,7 +484,7 @@ class MusicPlayer(QMainWindow):
             self.pause_menu.setEnabled(True)
             self.resume_menu.setEnabled(False)
             self.timeline_slider.setEnabled(True)
-            self.first_time = time()*1000
+            self.first_time = perf_counter()*1000
             self.timer.start(300)
             self.status_media = "playing"
             pathfile = open("path.pth", 'w')
@@ -506,7 +506,7 @@ class MusicPlayer(QMainWindow):
             self.secound_time, self.first_time
             self.timer.stop()
             value = self.timeline_slider.value()
-            self.first_time = (time()*1000) - value
+            self.first_time = (perf_counter()*1000) - value
             mixer.music.set_pos(value/1000)
             if mixer.music.get_busy() == False:
                 self.resumesong()
@@ -516,7 +516,7 @@ class MusicPlayer(QMainWindow):
 
     def time_counter(self):
         self.secound_time
-        get_pos = (time()*1000)-self.first_time
+        get_pos = (perf_counter()*1000)-self.first_time
         sec = int(get_pos/1000)
         result = str(datetime.timedelta(seconds=sec))
         self.time_elapsed.setText(result)
