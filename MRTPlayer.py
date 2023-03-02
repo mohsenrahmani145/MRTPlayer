@@ -12,7 +12,6 @@ from mutagen.id3 import ID3
 from mutagen.mp3 import MP3
 import Style
 
-
 class MusicPlayer(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -38,6 +37,7 @@ class MusicPlayer(QMainWindow):
         self.setWindowTitle("Music Player")
         self.setMinimumSize(500, 500)
         self.setWindowIcon(QIcon('icon.png'))
+        self.lockProgram = QSettings("MRTPlayer", "Music Player")
         self.scaleCalculation = 0
         self.dark_mode_enabled = False
         self.file_argv = None
@@ -54,7 +54,7 @@ class MusicPlayer(QMainWindow):
         self.bindSocket()
         self.load_settings()
         self.apply_settings()
-  
+
     def load_settings(self):
         with open('settings.json', 'r') as f:
             self.settings = json.load(f)
@@ -572,24 +572,21 @@ class MusicPlayer(QMainWindow):
         self.checker = QTimer()
         self.checker.timeout.connect(self.path_checker)
         self.checker.start(10)
-
+    
     def exitprogram(self):
-        os.remove('program.lock')
+        self.lockProgram.setValue("firstRun", False)
         sys.exit()
 
     def bindSocket(self):
 
-        self.lock_file = 'program.lock'
-
-        if os.path.isfile(self.lock_file):
+        if self.lockProgram.value("firstRun",True) == "true":
             print("Program is already running.")
             sys.exit()
         else:
-            open(self.lock_file, 'w').close()
+            self.lockProgram.setValue("firstRun",True)
 
 app = QApplication(sys.argv)
 window = MusicPlayer()
 window.show()
 app.exec()
-os.remove('program.lock')
-sys.exit()
+window.exitprogram()
